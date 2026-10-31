@@ -1,0 +1,74 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>GFR and Plasma Creatinine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--bg:#fff;--fg:#111;--bar:#f1f1f1;--bd:#ccc}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1b1b1b;--fg:#eee;--bar:#2a2a2a;--bd:#555}}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Helvetica,Arial,sans-serif}
+#w{max-width:1100px;margin:0 auto;padding:8px}
+svg{width:100%;height:auto;display:block;background:#fff;border-radius:6px;touch-action:none}
+text{font-family:Helvetica,Arial,sans-serif;font-size:27px;fill:#111}
+#bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--bar);border:1px solid var(--bd);border-radius:8px;padding:10px;margin:8px 0}
+#bar input{flex:1;min-width:200px;accent-color:#1f8f5a}
+table{width:100%;border-collapse:separate;border-spacing:0 3px;font-size:clamp(14px,2.2vw,24px);table-layout:fixed;font-variant-numeric:tabular-nums}
+.n{display:inline-block;min-width:3.4ch;text-align:right}.p{display:inline-block;min-width:2.5ch;text-align:right}
+th:nth-child(2),td:nth-child(2){text-align:left;padding-left:9%}
+th{background:#95a59b;color:#fff;text-align:left;padding:11px 16px;font-weight:700;letter-spacing:.2px}th:first-child{border-radius:8px 0 0 8px}th:last-child{border-radius:0 8px 8px 0}
+td{padding:10px 16px;color:#111;cursor:pointer;white-space:nowrap;vertical-align:middle;transition:background .2s}td:first-child{border-radius:8px 0 0 8px}td:last-child{border-radius:0 8px 8px 0}
+tr.r:nth-child(odd) td{background:#dde1de}tr.r:nth-child(even) td{background:#ebedeb}
+tr.on td{background:#f6e27a!important}
+tr.live td{background:#cfe8d6;font-weight:700;border-top:12px solid transparent;background-clip:padding-box;cursor:default}
+#msg{margin-top:8px;font-size:16px;min-height:1.5em}
+button{font:inherit;padding:6px 12px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--fg);cursor:pointer}
+</style></head><body><div id="w">
+<svg id="s" viewBox="460 0 920 545">
+<rect x="760" y="113" width="382" height="342" fill="#b9d9c0"/>
+<g id="grid" stroke="#fff" stroke-width="2.5"></g>
+<path d="M760 113V455H1142M1142 113V455" fill="none" stroke="#111" stroke-width="3"/>
+<g id="ticks"></g>
+<text x="480" y="252">Plasma creatinine</text><text x="480" y="292">concentration</text><text x="480" y="332">(mg/dL)</text>
+<text x="1228" y="262">Blood urea</text><text x="1228" y="302">nitrogen</text><text x="1228" y="342">(mg/dL)</text>
+<text x="945" y="540" text-anchor="middle">GFR (mL/min)</text>
+<path id="cv" fill="none" stroke="#0a9a55" stroke-width="7" stroke-linecap="round"/>
+<path d="M888 87L828 260L897 87Z" fill="#c5dcf0" stroke="#222" stroke-width="2"/>
+<rect x="833" y="12" width="418" height="75" rx="10" fill="#c5dcf0" stroke="#222" stroke-width="2.5"/>
+<text x="1042" y="61" text-anchor="middle" style="font-size:31px">P<tspan font-size="21" dy="8">Cr</tspan><tspan dy="-8"> · C</tspan><tspan font-size="21" dy="8">Cr</tspan><tspan dy="-8"> = U</tspan><tspan font-size="21" dy="8">Cr</tspan><tspan dy="-8"> · V̇ = Constant</tspan></text>
+<g id="gd" stroke="#d2402a" stroke-width="2" stroke-dasharray="6 5"><path id="gx"/><path id="gy"/></g>
+<circle id="dot" r="11" fill="#e8472b" stroke="#fff" stroke-width="3" style="cursor:grab"/>
+<rect id="lbb" rx="6" fill="#fff" stroke="#c33" opacity=".95" width="190" height="62"/><text id="l1" style="font-size:22px"></text><text id="l2" style="font-size:22px"></text>
+</svg>
+<div id="bar"><b>GFR</b><input id="sl" type="range" min="7" max="125" step="0.5" value="125"><b id="gv" style="min-width:110px">125 mL/min</b><button id="rs">Reset (normal)</button></div>
+<table><thead><tr><th style="width:20%">Produced</th><th style="width:46%">Filtered&nbsp; (GFR × Pcr)</th><th>Excreted</th></tr></thead><tbody id="tb"></tbody></table>
+<div id="msg"></div></div>
+<script>
+const $=i=>document.getElementById(i),NS='http://www.w3.org/2000/svg',K=130;
+const X=g=>760+g*3.056,Y=p=>455-p*17.1,mk=(p,t,a,h)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(h!=null)e.textContent=h;p.appendChild(e);return e};
+for(const g of[25,50,75,100])mk($('grid'),'path',{d:`M${X(g)} 113V455`});for(const p of[5,10,15])mk($('grid'),'path',{d:`M760 ${Y(p)}H1142`});
+[0,5,10,15,20].forEach(p=>{mk($('ticks'),'text',{x:745,y:Y(p)+9,'text-anchor':'end'},p);mk($('ticks'),'text',{x:1158,y:Y(p)+9},p*10);mk($('ticks'),'path',{d:`M752 ${Y(p)}H760`,stroke:'#111','stroke-width':3})});
+[0,25,50,75,100,125].forEach(g=>mk($('ticks'),'text',{x:X(g),y:497,'text-anchor':'middle'},g));
+let d='';for(let g=7;g<=125;g+=1)d+=(g==7?'M':'L')+X(g)+' '+Y(K/g);$('cv').setAttribute('d',d);
+const rows=[[125,1],[63,2],[31,4],[15,8],[7.5,16]],tb=$('tb'),trs=[];
+rows.forEach(([g,p])=>{const tr=document.createElement('tr');tr.className='r';tr.innerHTML=`<td>1.3 mg/min</td><td>= <b class="n">${g}</b> mL/min × <b class="p">${p}</b> mg/dL</td><td>= 1.3 mg/min</td>`;tr.onclick=()=>setG(g);tb.appendChild(tr);trs.push(tr)});
+const live=document.createElement('tr');live.className='live';live.innerHTML='<td>1.3 mg/min</td><td id="lf"></td><td id="le"></td>';tb.appendChild(live);
+let G=125,Pc=K/125,drag=false;
+function setG(g){G=Math.max(7,Math.min(125,g));$('sl').value=G}
+$('sl').oninput=e=>setG(+e.target.value);$('rs').onclick=()=>setG(125);
+const pt=e=>{const r=$('s').getBoundingClientRect(),x=460+(e.clientX-r.left)*920/r.width;return(x-760)/3.056};
+$('dot').onpointerdown=e=>{drag=true;e.target.setPointerCapture(e.pointerId)};
+$('s').onpointermove=e=>{if(drag)setG(pt(e))};addEventListener('pointerup',()=>drag=false);
+$('s').onclick=e=>{const g=pt(e);if(g>=0&&g<=125)setG(g)};
+let last=performance.now();
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+ const tgt=K/G;Pc+=(tgt-Pc)*(1-Math.exp(-dt/.9));
+ const px=X(G),py=Y(Math.min(20,Pc)),ex=G*Pc/100;
+ $('dot').setAttribute('cx',px);$('dot').setAttribute('cy',py);
+ $('gx').setAttribute('d',`M${px} ${py}V455`);$('gy').setAttribute('d',`M760 ${py}H${px}`);
+ const lx=px>1000?px-205:px+18,ly=py<150?py+22:py-70;$('lbb').setAttribute('x',lx);$('lbb').setAttribute('y',ly);
+ $('l1').setAttribute('x',lx+10);$('l1').setAttribute('y',ly+26);$('l2').setAttribute('x',lx+10);$('l2').setAttribute('y',ly+52);
+ $('l1').textContent='GFR '+G.toFixed(0)+' mL/min';$('l2').textContent='Pcr '+Pc.toFixed(1)+' mg/dL';
+ $('gv').textContent=G.toFixed(G%1?1:0)+' mL/min';
+ $('lf').innerHTML=`= <b class="n">${G.toFixed(0)}</b> mL/min × <b class="p">${Pc.toFixed(1)}</b> mg/dL`;$('le').textContent='= '+ex.toFixed(2)+' mg/min';
+ let bi=0,bd=1e9;rows.forEach(([g],i)=>{const q=Math.abs(Math.log(g/G));if(q<bd){bd=q;bi=i}});trs.forEach((t,i)=>t.classList.toggle('on',i==bi&&bd<.12));
+ const gap=1.3-ex;$('msg').textContent=Math.abs(gap)<.03?'Steady state: creatinine excreted = produced (1.3 mg/min). Because P × GFR is constant, halving the GFR doubles plasma creatinine.':(gap>0?'Transient: filtered load has fallen below production, so creatinine is accumulating in plasma until the new steady state is reached.':'Transient: plasma creatinine is falling back toward its new steady-state value.');
+ requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+</script></body></html>
